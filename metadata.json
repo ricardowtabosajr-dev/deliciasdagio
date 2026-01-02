@@ -1,0 +1,7 @@
+{
+  "description": "Sistema POS e Delivery Premium 'Delícias da Gio' com gestão de estoque, histórico de pedidos, checkout via WhatsApp e IA gastronômica integrada.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "name": "Delícias da Gio - Pro Delivery"
+}
