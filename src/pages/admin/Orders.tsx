@@ -31,13 +31,7 @@ export const Orders: React.FC = () => {
         } else if (type === 'entrega') {
             const token = order.confirmationToken || order.id;
             const confirmUrl = `${window.location.protocol}//${window.location.host}/confirm?token=${token}`;
-            msg = `${greeting}Seu pedido #${orderIdShort} da ${storeConfig.storeName} saiu para entrega! 🛵💨\n\n*Por- [x] Melhoria Visual Gourmet
-    - [x] Implementar fallback automático inteligente (análise de nome do produto)
-- [x] Notificações em Tempo Real (WhatsApp)
-    - [x] Botão "Notificar Recebimento" para status Recebido
-    - [x] Botão "Notificar Preparo" para status Em preparo
-    - [x] Botão "Enviar Link de Entrega" (Aprimorado)
-regador chegar:*\n${confirmUrl}`;
+            msg = `${greeting}Seu pedido #${orderIdShort} está a caminho! 🛵💨\n\n*Clique no link abaixo para confirmar o recebimento na entrega:*\n${confirmUrl}`;
         }
 
         sendWhatsApp(order.customerPhone, msg);
