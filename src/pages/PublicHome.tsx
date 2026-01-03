@@ -9,6 +9,7 @@ import { useAuth } from '../hooks/useAuth';
 import { CATEGORIES } from '../constants';
 import { Product, CartItem } from '../types';
 import { supabase } from '../services/supabase';
+import { getPlaceholderImage } from '../utils/imageUtils';
 
 export const PublicHome: React.FC = () => {
     const { products, storeConfig, dbSyncing, setDbSyncing, orders, setOrders } = useStore();
@@ -196,11 +197,11 @@ export const PublicHome: React.FC = () => {
                     {filteredProducts.map(p => (
                         <div key={p.id} className="gourmet-card group bg-white p-8 flex flex-col space-y-6">
                             <div className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-slate-50">
-                                {p.imageUrl ? (
-                                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-200"><Pizza size={80} strokeWidth={1} /></div>
-                                )}
+                                <img
+                                    src={p.imageUrl || getPlaceholderImage(p.category)}
+                                    alt={p.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                />
                                 <div className="absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black text-rose-600 uppercase tracking-widest border border-rose-50 shadow-lg">
                                     {p.category}
                                 </div>
@@ -259,7 +260,11 @@ export const PublicHome: React.FC = () => {
                                 cart.map(item => (
                                     <div key={item.product.id} className="bg-white p-6 rounded-3xl border border-rose-50 shadow-sm flex gap-6 items-center">
                                         <div className="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden shrink-0">
-                                            {item.product.imageUrl ? <img src={item.product.imageUrl} className="w-full h-full object-cover" /> : <Pizza className="w-full h-full p-4 text-slate-200" />}
+                                            <img
+                                                src={item.product.imageUrl || getPlaceholderImage(item.product.category)}
+                                                className="w-full h-full object-cover"
+                                                alt={item.product.name}
+                                            />
                                         </div>
                                         <div className="flex-1">
                                             <h4 className="font-black text-slate-900 tracking-tight">{item.product.name}</h4>

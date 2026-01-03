@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, Edit3, Trash2, Pizza } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../context/StoreContext';
+import { getPlaceholderImage } from '../../utils/imageUtils';
 
 export const Products: React.FC = () => {
     const { products, deleteProduct, dbSyncing } = useStore();
@@ -27,14 +28,11 @@ export const Products: React.FC = () => {
                 {products.map((product) => (
                     <div key={product.id} className="gourmet-card group bg-white hover:scale-[1.02] transition-all duration-500">
                         <div className="h-64 bg-slate-100 relative overflow-hidden">
-                            {product.imageUrl ? (
-                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-4">
-                                    <Pizza size={48} strokeWidth={1} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Sem Imagem</span>
-                                </div>
-                            )}
+                            <img
+                                src={product.imageUrl || getPlaceholderImage(product.category)}
+                                alt={product.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            />
                             <div className="absolute top-4 left-4">
                                 <span className="px-4 py-2 bg-white/90 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-xl border border-white/50">
                                     {product.category}
