@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { KeyRound, X } from 'lucide-react';
+import { KeyRound, X, RefreshCcw } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 
 export const Login: React.FC = () => {
@@ -44,26 +44,24 @@ export const Login: React.FC = () => {
                         <input
                             autoFocus
                             type="email"
-                            placeholder="Email"
+                            placeholder="Seu email de acesso"
                             value={adminEmail}
                             onChange={e => { setAdminEmail(e.target.value); setLoginError(false); }}
-                            className={`w-full px-6 py-5 bg-slate-50 rounded-2xl text-center text-lg tracking-wide border-2 transition-all ${loginError ? 'border-rose-500' : 'border-transparent focus:border-rose-100'
-                                }`}
+                            className={`input-gourmet text-center ${loginError ? 'border-rose-500 bg-rose-50' : ''}`}
                         />
                         <input
                             type="password"
-                            placeholder="Senha"
+                            placeholder="Sua senha secreta"
                             value={adminPassword}
                             onChange={e => { setAdminPassword(e.target.value); setLoginError(false); }}
-                            className={`w-full px-6 py-5 bg-slate-50 rounded-2xl text-center text-2xl tracking-widest border-2 transition-all ${loginError ? 'border-rose-500' : 'border-transparent focus:border-rose-100'
-                                }`}
+                            className={`input-gourmet text-center tracking-widest ${loginError ? 'border-rose-500 bg-rose-50' : ''}`}
                         />
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-5 bg-rose-600 text-white rounded-2xl font-black uppercase text-xs shadow-xl hover:bg-rose-700 transition-all disabled:opacity-50"
+                            className="w-full py-6 bg-rose-600 text-white rounded-[2rem] font-black uppercase text-xs shadow-2xl shadow-rose-200 hover:bg-rose-700 hover:-translate-y-1 transition-all disabled:opacity-50"
                         >
-                            {loading ? 'Entrando...' : 'Entrar no Sistema'}
+                            {loading ? <RefreshCcw className="animate-spin mx-auto" /> : 'Entrar no Sistema'}
                         </button>
                     </form>
                 </div>

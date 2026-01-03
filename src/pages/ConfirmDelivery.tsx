@@ -93,7 +93,7 @@ export const ConfirmDelivery: React.FC = () => {
                         <p className="text-slate-500">Obrigado por avisar! Esperamos que sua experiência com a {storeConfig.storeName} tenha sido incrível. 😋</p>
                         <button
                             onClick={() => navigate('/')}
-                            className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs"
+                            className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest text-[10px] shadow-2xl hover:bg-rose-600 transition-all"
                         >
                             Ir para o Início
                         </button>
@@ -105,11 +105,11 @@ export const ConfirmDelivery: React.FC = () => {
                         <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto">
                             <AlertCircle size={48} />
                         </div>
-                        <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Ops!</h2>
+                        <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Ops! Algo falhou</h2>
                         <p className="text-rose-500/80 font-medium">{errorMsg}</p>
                         <button
                             onClick={() => navigate('/')}
-                            className="w-full py-5 bg-slate-100 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-xs"
+                            className="w-full py-6 bg-slate-100 text-slate-900 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-rose-50 hover:text-rose-600 transition-all"
                         >
                             Voltar ao Início
                         </button>
