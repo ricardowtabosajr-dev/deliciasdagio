@@ -4,12 +4,18 @@ import { STATUS_CONFIG } from '../../constants';
 import { OrderStatus, Order } from '../../types';
 
 import {
-    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight, Truck, UtensilsCrossed, X, Printer
+    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight, Truck, UtensilsCrossed, X, Printer, History
 } from 'lucide-react';
 
 export const Orders: React.FC = () => {
     const { orders, updateOrderStatus, storeConfig, dbSyncing } = useStore();
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [activeTab, setActiveTab] = useState<'ativos' | 'historico'>('ativos');
+
+    const filteredOrders = orders.filter(order => {
+        const isCompleted = order.status === 'Entregue' || order.status === 'Cancelado';
+        return activeTab === 'ativos' ? !isCompleted : isCompleted;
+    });
 
     const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
         await updateOrderStatus(orderId, newStatus);
@@ -45,6 +51,20 @@ export const Orders: React.FC = () => {
                     <p className="text-[10px] font-black text-rose-600 uppercase tracking-[0.3em]">Operação</p>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Fila de Pedidos</h1>
                 </div>
+                <div className="flex bg-slate-100 p-1.5 rounded-[2rem] gap-1">
+                    <button
+                        onClick={() => setActiveTab('ativos')}
+                        className={`px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'ativos' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Fila de Produção
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('historico')}
+                        className={`px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'historico' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Histórico
+                    </button>
+                </div>
                 <div className="flex items-center gap-3 px-6 py-3 bg-white border border-rose-50 rounded-2xl shadow-sm">
                     <div className="w-2.5 h-2.5 bg-rose-600 rounded-full animate-pulse"></div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Tempo Real Ativo</span>
@@ -52,13 +72,19 @@ export const Orders: React.FC = () => {
             </header>
 
             <div className="grid grid-cols-1 gap-6">
-                {orders.length === 0 ? (
+                {filteredOrders.length === 0 ? (
                     <div className="gourmet-card p-20 flex flex-col items-center justify-center text-center space-y-4 opacity-50">
-                        <ShoppingBag size={48} className="text-slate-300" strokeWidth={1} />
-                        <p className="font-black uppercase text-[10px] tracking-widest text-slate-400">Nenhum pedido no momento</p>
+                        {activeTab === 'ativos' ? (
+                            <ShoppingBag size={48} className="text-slate-300" strokeWidth={1} />
+                        ) : (
+                            <History size={48} className="text-slate-300" strokeWidth={1} />
+                        )}
+                        <p className="font-black uppercase text-[10px] tracking-widest text-slate-400">
+                            {activeTab === 'ativos' ? 'Nenhum pedido em produção' : 'Histórico de pedidos vazio'}
+                        </p>
                     </div>
                 ) : (
-                    orders.map((order) => (
+                    filteredOrders.map((order) => (
                         <div key={order.id} className="gourmet-card bg-white hover:border-rose-100 transition-all duration-500 flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-rose-50">
                             {/* Order Header & Status */}
                             <div className="p-8 lg:w-80 flex flex-col justify-between space-y-6">
