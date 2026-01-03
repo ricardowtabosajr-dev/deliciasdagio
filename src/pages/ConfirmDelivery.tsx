@@ -29,7 +29,9 @@ export const ConfirmDelivery: React.FC = () => {
                     .eq('confirmation_token', token)
                     .single();
 
-                if (findError || !data) {
+                if (findError) {
+                    console.warn("Busca por token falhou, tentando fallback por ID...", findError);
+
                     // Fallback for old links (Phase 1 used order ID)
                     const { data: oldData, error: oldError } = await supabase
                         .from('orders')
@@ -38,8 +40,9 @@ export const ConfirmDelivery: React.FC = () => {
                         .single();
 
                     if (oldError || !oldData) {
+                        console.error("Pedido não encontrado em nenhum formato:", oldError);
                         setStatus('error');
-                        setErrorMsg('Pedido não encontrado.');
+                        setErrorMsg('O link de confirmação parece ter expirado ou o pedido não existe.');
                         return;
                     }
 
@@ -50,7 +53,7 @@ export const ConfirmDelivery: React.FC = () => {
                         .eq('id', oldData.id);
 
                     if (updateError) throw updateError;
-                } else {
+                } else if (data) {
                     // Update by token (secure)
                     const { error: updateError } = await supabase
                         .from('orders')
@@ -62,9 +65,9 @@ export const ConfirmDelivery: React.FC = () => {
 
                 setStatus('success');
             } catch (err: any) {
-                console.error(err);
+                console.error("Erro fatal na confirmação:", err);
                 setStatus('error');
-                setErrorMsg('Erro ao atualizar o status do pedido.');
+                setErrorMsg('Falha de conexão. Por favor, tente novamente em instantes.');
             }
         };
 
