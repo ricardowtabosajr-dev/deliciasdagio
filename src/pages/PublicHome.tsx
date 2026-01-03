@@ -88,7 +88,8 @@ export const PublicHome: React.FC = () => {
             setOrders([dbOrder as any, ...orders]);
             window.open(`https://wa.me/${storePhone}?text=${encodeURIComponent(message)}`, '_blank');
         } else {
-            alert("Erro ao enviar pedido. Tente novamente.");
+            console.error("Erro Supabase:", error);
+            alert(`Erro ao enviar pedido: ${error.message} (Código: ${error.code})`);
         }
         setDbSyncing(false);
     };
