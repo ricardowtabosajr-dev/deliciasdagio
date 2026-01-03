@@ -16,18 +16,29 @@ export const CreateProduct: React.FC = () => {
     const [aiGenerating, setAiGenerating] = useState(false);
 
     useEffect(() => {
+        console.log("CreateProduct: checking id", id);
         if (id) {
             const product = products.find(p => p.id === id);
+            console.log("CreateProduct: found product", product);
             if (product) setFormData(product);
         }
     }, [id, products]);
 
     const handleAiAssistant = async () => {
+        console.log("CreateProduct: AI Assistant triggered for", formData.name);
         if (!formData.name) return;
         setAiGenerating(true);
         try {
             // Vite injects these via define in vite.config.ts
-            const apiKey = process.env.API_KEY || '';
+            // We use a try/catch around the access just in case
+            let apiKey = '';
+            try {
+                apiKey = process.env.API_KEY || '';
+            } catch (err) {
+                console.error("Erro ao acessar process.env.API_KEY", err);
+            }
+
+            console.log("CreateProduct: Using API Key (first 4 chars):", apiKey.substring(0, 4));
             const ai = new GoogleGenAI({ apiKey });
             const response = await ai.models.generateContent({
                 model: "gemini-1.5-flash",
@@ -69,10 +80,14 @@ export const CreateProduct: React.FC = () => {
             <div className="space-y-6">
                 <input
                     required
+                    id="productName"
                     placeholder="Nome do Produto"
                     value={formData.name || ''}
-                    onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-6 py-5 bg-slate-50 rounded-2xl font-bold"
+                    onChange={e => {
+                        console.log("CreateProduct: Name input changing to", e.target.value);
+                        setFormData(prev => ({ ...prev, name: e.target.value }));
+                    }}
+                    className="w-full px-6 py-5 bg-slate-50 rounded-2xl font-bold text-slate-900"
                 />
                 <div className="p-6 bg-rose-600 rounded-3xl text-white space-y-4">
                     <div className="flex justify-between items-center">
