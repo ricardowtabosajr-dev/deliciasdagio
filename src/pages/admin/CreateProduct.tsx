@@ -25,24 +25,23 @@ export const CreateProduct: React.FC = () => {
     }, [id, products]);
 
     const handleAiAssistant = async () => {
-        console.log("CreateProduct: AI Assistant triggered for", formData.name);
         if (!formData.name) return;
+        console.log("IA: Iniciando geração para", formData.name);
         setAiGenerating(true);
         try {
-            // Vite injects these via define in vite.config.ts
-            // We use a try/catch around the access just in case
-            let apiKey = '';
-            try {
-                apiKey = process.env.API_KEY || '';
-            } catch (err) {
-                console.error("Erro ao acessar process.env.API_KEY", err);
+            const apiKey = process.env.API_KEY;
+            console.log("IA: Verificando chave (primeiros 4 chars):", apiKey?.substring(0, 4));
+
+            if (!apiKey || apiKey === 'undefined') {
+                alert("ERRO: Chave de API (API_KEY) não encontrada! Verifique o arquivo .env na raiz.");
+                return;
             }
 
-            console.log("CreateProduct: Using API Key (first 4 chars):", apiKey.substring(0, 4));
             const ai = new GoogleGenAI({ apiKey });
+
             const response = await ai.models.generateContent({
                 model: "gemini-1.5-flash",
-                contents: `Gere uma descrição gourmet curta e atrativa para: "${formData.name}".`,
+                contents: `Faça uma descrição gourmet curta e apetitosa para o produto: "${formData.name}". Responda APENAS o JSON com os campos description, category e sku.`,
                 config: {
                     responseMimeType: "application/json",
                     responseSchema: {
@@ -56,11 +55,16 @@ export const CreateProduct: React.FC = () => {
                     }
                 }
             });
-            const result = JSON.parse(response.text || '{}');
+
+            console.log("IA: Resposta recebida", response);
+            if (!response.text) throw new Error("A IA retornou uma resposta vazia.");
+
+            const result = JSON.parse(response.text);
             setFormData(prev => ({ ...prev, ...result }));
-        } catch (e) {
-            console.error("Erro na IA:", e);
-            alert("Não foi possível gerar a descrição. Verifique sua chave de API.");
+            console.log("IA: Sucesso ao aplicar descrição");
+        } catch (e: any) {
+            console.error("IA: Erro detalhado", e);
+            alert(`Erro na IA: ${e.message || "Erro desconhecido. Verifique o console do navegador (F12)."}`);
         } finally {
             setAiGenerating(false);
         }
