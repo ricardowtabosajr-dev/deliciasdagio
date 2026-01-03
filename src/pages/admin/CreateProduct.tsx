@@ -44,29 +44,18 @@ export const CreateProduct: React.FC = () => {
 
             const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
+            console.log("IA: Solicitando conteúdo ao modelo gemini-2.0-flash...");
             const response = await ai.models.generateContent({
-                model: "gemini-pro",
-                contents: `Faça uma descrição gourmet curta e apetitosa para o produto: "${formData.name}". Responda APENAS o JSON com os campos description, category e sku.`,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: {
-                            description: { type: Type.STRING },
-                            category: { type: Type.STRING },
-                            sku: { type: Type.STRING }
-                        },
-                        required: ["description", "category", "sku"]
-                    }
-                }
+                model: "gemini-2.0-flash",
+                contents: `Gere uma descrição gourmet curta em português para o produto: "${formData.name}".`
             });
 
-            console.log("IA: Resposta recebida", response);
-            if (!response.text) throw new Error("A IA retornou uma resposta vazia.");
+            console.log("IA: Resposta bruta recebida", response);
+            const text = response.text;
+            if (!text) throw new Error("A IA retornou uma resposta vazia.");
 
-            const result = JSON.parse(response.text);
-            setFormData(prev => ({ ...prev, ...result }));
-            alert("Sucesso! Descrição gerada.");
+            setFormData(prev => ({ ...prev, description: text }));
+            alert("Sucesso! Descrição gerada via Gemini 2.0.");
         } catch (e: any) {
             console.error("IA: Erro detalhado", e);
             alert(`Erro na IA: ${e.message || "Erro desconhecido. Verifique o F12."}`);
