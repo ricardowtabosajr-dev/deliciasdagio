@@ -25,7 +25,7 @@ export const CreateProduct: React.FC = () => {
     }, [id, products]);
 
     const handleAiAssistant = async () => {
-        alert("Botão clicado! Verificando dados...");
+        alert("[VERSÃO 2.0] Iniciando Assistente de IA...");
         if (!formData.name) {
             alert("Erro: Digite o nome do produto primeiro.");
             return;
@@ -39,14 +39,13 @@ export const CreateProduct: React.FC = () => {
             console.log("IA: Verificando chave (primeiros 4 chars):", apiKey?.substring(0, 4));
 
             if (!apiKey || apiKey === 'undefined' || apiKey === '') {
-                alert("ERRO CRÍTICO: Chave de API não injetada pelo Vite! Tentando fallback...");
-                // Note: Fallback would only work if it was VITE_ prefix, but we defined it manually in vite.config
+                alert("ERRO: Chave de API não encontrada!");
             }
 
             const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
             const response = await ai.models.generateContent({
-                model: "gemini-1.5-flash",
+                model: "gemini-pro",
                 contents: `Faça uma descrição gourmet curta e apetitosa para o produto: "${formData.name}". Responda APENAS o JSON com os campos description, category e sku.`,
                 config: {
                     responseMimeType: "application/json",
