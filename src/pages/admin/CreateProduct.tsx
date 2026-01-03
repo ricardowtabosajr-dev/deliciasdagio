@@ -25,19 +25,25 @@ export const CreateProduct: React.FC = () => {
     }, [id, products]);
 
     const handleAiAssistant = async () => {
-        if (!formData.name) return;
+        alert("Botão clicado! Verificando dados...");
+        if (!formData.name) {
+            alert("Erro: Digite o nome do produto primeiro.");
+            return;
+        }
+
         console.log("IA: Iniciando geração para", formData.name);
         setAiGenerating(true);
         try {
+            // Vite replacement of process.env.API_KEY
             const apiKey = process.env.API_KEY;
             console.log("IA: Verificando chave (primeiros 4 chars):", apiKey?.substring(0, 4));
 
-            if (!apiKey || apiKey === 'undefined') {
-                alert("ERRO: Chave de API (API_KEY) não encontrada! Verifique o arquivo .env na raiz.");
-                return;
+            if (!apiKey || apiKey === 'undefined' || apiKey === '') {
+                alert("ERRO CRÍTICO: Chave de API não injetada pelo Vite! Tentando fallback...");
+                // Note: Fallback would only work if it was VITE_ prefix, but we defined it manually in vite.config
             }
 
-            const ai = new GoogleGenAI({ apiKey });
+            const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
             const response = await ai.models.generateContent({
                 model: "gemini-1.5-flash",
@@ -61,10 +67,10 @@ export const CreateProduct: React.FC = () => {
 
             const result = JSON.parse(response.text);
             setFormData(prev => ({ ...prev, ...result }));
-            console.log("IA: Sucesso ao aplicar descrição");
+            alert("Sucesso! Descrição gerada.");
         } catch (e: any) {
             console.error("IA: Erro detalhado", e);
-            alert(`Erro na IA: ${e.message || "Erro desconhecido. Verifique o console do navegador (F12)."}`);
+            alert(`Erro na IA: ${e.message || "Erro desconhecido. Verifique o F12."}`);
         } finally {
             setAiGenerating(false);
         }
