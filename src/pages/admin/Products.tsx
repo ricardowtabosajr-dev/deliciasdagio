@@ -29,7 +29,7 @@ export const Products: React.FC = () => {
                     <div key={product.id} className="gourmet-card group bg-white hover:scale-[1.02] transition-all duration-500">
                         <div className="h-64 bg-slate-100 relative overflow-hidden">
                             <img
-                                src={product.imageUrl || getPlaceholderImage(product.category)}
+                                src={product.imageUrl || getPlaceholderImage(product.category, product.name)}
                                 alt={product.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                             />

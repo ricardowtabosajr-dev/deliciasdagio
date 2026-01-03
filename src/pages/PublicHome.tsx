@@ -198,7 +198,7 @@ export const PublicHome: React.FC = () => {
                         <div key={p.id} className="gourmet-card group bg-white p-8 flex flex-col space-y-6">
                             <div className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-slate-50">
                                 <img
-                                    src={p.imageUrl || getPlaceholderImage(p.category)}
+                                    src={p.imageUrl || getPlaceholderImage(p.category, p.name)}
                                     alt={p.name}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                 />
@@ -261,7 +261,7 @@ export const PublicHome: React.FC = () => {
                                     <div key={item.product.id} className="bg-white p-6 rounded-3xl border border-rose-50 shadow-sm flex gap-6 items-center">
                                         <div className="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden shrink-0">
                                             <img
-                                                src={item.product.imageUrl || getPlaceholderImage(item.product.category)}
+                                                src={item.product.imageUrl || getPlaceholderImage(item.product.category, item.product.name)}
                                                 className="w-full h-full object-cover"
                                                 alt={item.product.name}
                                             />
