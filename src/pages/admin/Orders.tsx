@@ -4,25 +4,23 @@ import { STATUS_CONFIG } from '../../constants';
 import { OrderStatus } from '../../types';
 
 import {
-    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight
+    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight, Truck
 } from 'lucide-react';
 
 export const Orders: React.FC = () => {
     const { orders, updateOrderStatus, storeConfig, dbSyncing } = useStore();
 
     const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
-        const order = orders.find(o => o.id === orderId);
-
-        if (newStatus === 'Saiu para entrega' && order) {
-            const token = order.confirmationToken || order.id;
-            const confirmUrl = `${window.location.protocol}//${window.location.host}/confirm?token=${token}`;
-            const msg = `Olá ${order.customerName}! Seu pedido #${order.id.slice(0, 5)} da ${storeConfig.storeName} saiu para entrega! 🛵💨\n\n*Por favor, clique no link abaixo para confirmar o recebimento quando o entregador chegar:*\n${confirmUrl}`;
-
-            const cleanPhone = order.customerPhone.replace(/\D/g, '');
-            window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
         await updateOrderStatus(orderId, newStatus);
+    };
+
+    const notifyOrderDelivery = (order: any) => {
+        const token = order.confirmationToken || order.id;
+        const confirmUrl = `${window.location.protocol}//${window.location.host}/confirm?token=${token}`;
+        const msg = `Olá ${order.customerName}! Seu pedido #${order.id.slice(0, 5)} da ${storeConfig.storeName} saiu para entrega! 🛵💨\n\n*Por favor, clique no link abaixo para confirmar o recebimento quando o entregador chegar:*\n${confirmUrl}`;
+
+        const cleanPhone = order.customerPhone.replace(/\D/g, '');
+        window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`, '_blank');
     };
 
     return (
@@ -75,9 +73,9 @@ export const Orders: React.FC = () => {
                                             disabled={dbSyncing}
                                             onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
                                             className={`w-full px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest appearance-none outline-none border-2 transition-all cursor-pointer ${STATUS_CONFIG[order.status]?.color?.includes('bg-emerald') ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100' :
-                                                    STATUS_CONFIG[order.status]?.color?.includes('bg-rose') ? 'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100' :
-                                                        STATUS_CONFIG[order.status]?.color?.includes('bg-amber') ? 'bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-100' :
-                                                            'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                                                STATUS_CONFIG[order.status]?.color?.includes('bg-rose') ? 'bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100' :
+                                                    STATUS_CONFIG[order.status]?.color?.includes('bg-amber') ? 'bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-100' :
+                                                        'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
                                                 }`}
                                         >
                                             {Object.keys(STATUS_CONFIG).map(s => (
@@ -94,6 +92,16 @@ export const Orders: React.FC = () => {
                             {/* Order Content */}
                             <div className="p-8 flex-1 bg-slate-50/30">
                                 <div className="space-y-4">
+                                    {order.customerAddress && (
+                                        <div className="p-4 bg-rose-50/50 rounded-2xl border border-rose-100 flex items-start gap-3">
+                                            <MapPin size={16} className="text-rose-400 mt-1" />
+                                            <div>
+                                                <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Endereço de Entrega</p>
+                                                <p className="text-slate-600 font-medium text-xs">{order.customerAddress}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <div className="flex items-center gap-2 mb-4">
                                         <Package size={16} className="text-slate-300" />
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Itens do Pedido</span>
@@ -128,6 +136,14 @@ export const Orders: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-3">
+                                    {order.status === 'Saiu para entrega' && (
+                                        <button
+                                            onClick={() => notifyOrderDelivery(order)}
+                                            className="w-full py-4 bg-rose-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-rose-700 shadow-lg shadow-rose-200 transition-all animate-bounce-slow"
+                                        >
+                                            <Truck size={16} /> Enviar Link de Entrega
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => {
                                             const cleanPhone = order.customerPhone.replace(/\D/g, '');
@@ -135,7 +151,7 @@ export const Orders: React.FC = () => {
                                         }}
                                         className="w-full py-4 bg-emerald-50 text-emerald-600 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-600 hover:text-white transition-all group"
                                     >
-                                        <MessageCircle size={16} className="group-hover:animate-bounce" /> WhatsApp
+                                        <MessageCircle size={16} className="group-hover:animate-bounce" /> WhatsApp do Cliente
                                     </button>
                                     <button className="w-full py-4 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-slate-100 transition-all">
                                         <Receipt size={16} /> Ver Recibo

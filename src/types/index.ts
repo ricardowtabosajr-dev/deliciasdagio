@@ -28,10 +28,11 @@ export interface Order {
     total: number;
     timestamp: number;
     status: OrderStatus;
-    confirmationToken?: string; // Phase 2
-    paymentMethod?: string; // Phase 4
-    troco?: number; // Phase 4
-    deliveryMethod?: 'Entrega' | 'Retirada'; // Phase 4
+    confirmationToken?: string;
+    paymentMethod?: string;
+    customerAddress?: string;
+    troco?: number;
+    deliveryMethod?: 'Entrega' | 'Retirada';
 }
 
 export interface StoreConfig {

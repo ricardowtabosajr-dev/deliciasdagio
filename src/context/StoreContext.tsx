@@ -76,6 +76,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     confirmationToken: o.confirmation_token,
                     paymentMethod: o.payment_method,
                     deliveryMethod: o.delivery_method,
+                    customerAddress: o.customer_address,
                     troco: o.troco
                 })));
             }
@@ -167,6 +168,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                             confirmationToken: payload.new.confirmation_token,
                             paymentMethod: payload.new.payment_method,
                             deliveryMethod: payload.new.delivery_method,
+                            customerAddress: payload.new.customer_address,
                             troco: payload.new.troco
                         };
                         setOrders(prev => [newOrder, ...prev]);
@@ -184,6 +186,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                             confirmationToken: payload.new.confirmation_token,
                             paymentMethod: payload.new.payment_method,
                             deliveryMethod: payload.new.delivery_method,
+                            customerAddress: payload.new.customer_address,
                             troco: payload.new.troco
                         } : o));
                     } else if (payload.eventType === 'DELETE') {

@@ -65,6 +65,7 @@ export const PublicHome: React.FC = () => {
             confirmation_token: confirmationToken,
             payment_method: checkoutData.payment,
             delivery_method: checkoutData.delivery,
+            customer_address: checkoutData.delivery === 'Entrega' ? checkoutData.address : null,
             troco: checkoutData.payment === 'Dinheiro' ? Number(checkoutData.troco) : null
         };
 
