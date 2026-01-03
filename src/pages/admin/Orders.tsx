@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { STATUS_CONFIG } from '../../constants';
-import { OrderStatus } from '../../types';
+import { OrderStatus, Order } from '../../types';
 
 import {
-    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight, Truck, UtensilsCrossed
+    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight, Truck, UtensilsCrossed, X, Printer
 } from 'lucide-react';
 
 export const Orders: React.FC = () => {
     const { orders, updateOrderStatus, storeConfig, dbSyncing } = useStore();
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
         await updateOrderStatus(orderId, newStatus);
@@ -183,7 +184,10 @@ export const Orders: React.FC = () => {
                                     >
                                         <MessageCircle size={16} className="group-hover:animate-bounce" /> WhatsApp do Cliente
                                     </button>
-                                    <button className="w-full py-4 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-slate-100 transition-all">
+                                    <button
+                                        onClick={() => setSelectedOrder(order)}
+                                        className="w-full py-4 bg-slate-50 text-slate-600 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-rose-50 hover:text-rose-600 transition-all"
+                                    >
                                         <Receipt size={16} /> Ver Recibo
                                     </button>
                                 </div>
@@ -192,6 +196,109 @@ export const Orders: React.FC = () => {
                     ))
                 )}
             </div>
+
+            {/* Receipt Modal */}
+            {selectedOrder && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 overflow-y-auto pt-20 pb-10">
+                    <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => setSelectedOrder(null)}></div>
+                    <div className="relative w-full max-w-lg bg-white rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                        {/* Modal Header */}
+                        <div className="p-8 border-b border-rose-50 flex items-center justify-between bg-white sticky top-0 z-10">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center border border-rose-100">
+                                    <Receipt size={20} />
+                                </div>
+                                <h2 className="font-black text-slate-900 text-xl tracking-tighter uppercase">Recibo do Pedido</h2>
+                            </div>
+                            <button onClick={() => setSelectedOrder(null)} className="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 transition-all">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Receipt Content */}
+                        <div className="p-10 space-y-10 max-h-[70vh] overflow-y-auto">
+                            {/* Header / Store Info */}
+                            <div className="text-center space-y-2 pb-8 border-b border-dashed border-slate-200">
+                                <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">{storeConfig.storeName}</h1>
+                                <p className="text-[10px] font-black text-rose-600 uppercase tracking-[0.2em]">Pedido #{selectedOrder.id.slice(0, 8)}</p>
+                                <p className="text-slate-400 text-xs font-medium italic">{new Date(selectedOrder.timestamp).toLocaleString('pt-BR')}</p>
+                            </div>
+
+                            {/* Customer Info */}
+                            <div className="space-y-4">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-l-4 border-rose-200 pl-3">Destinatário</p>
+                                <div className="space-y-1">
+                                    <p className="font-black text-slate-900 uppercase tracking-tight">{selectedOrder.customerName}</p>
+                                    <p className="text-slate-500 text-xs">{selectedOrder.customerPhone}</p>
+                                    {selectedOrder.customerAddress && (
+                                        <p className="text-slate-500 text-xs pt-1">{selectedOrder.customerAddress}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Items Table */}
+                            <div className="space-y-4">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-l-4 border-rose-200 pl-3">Produtos</p>
+                                <div className="space-y-4">
+                                    {selectedOrder.items.map((item, i) => (
+                                        <div key={i} className="flex justify-between items-start gap-4">
+                                            <div className="flex-1">
+                                                <p className="font-bold text-slate-800 text-sm leading-tight italic">{item.qty}x {item.name}</p>
+                                                <p className="text-[10px] text-slate-400 font-medium">Preço unitário: R$ {item.price.toFixed(2)}</p>
+                                            </div>
+                                            <p className="font-black text-slate-900 text-sm">R$ {(item.qty * item.price).toFixed(2)}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="pt-6 border-t border-dashed border-slate-200 space-y-2">
+                                    <div className="flex justify-between items-center text-slate-400 text-xs font-bold uppercase tracking-widest">
+                                        <span>Subtotal</span>
+                                        <span>R$ {selectedOrder.total.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-rose-600 text-xl font-black uppercase tracking-tighter">
+                                        <span>Total Geral</span>
+                                        <span>R$ {selectedOrder.total.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Payment & Logistics */}
+                            <div className="grid grid-cols-2 gap-8 pt-8 border-t border-dashed border-slate-200">
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pagamento</p>
+                                    <p className="text-xs font-black text-slate-900 uppercase italic">{selectedOrder.paymentMethod || 'Pix'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Tipo</p>
+                                    <p className="text-xs font-black text-slate-900 uppercase italic">{selectedOrder.deliveryMethod || 'Entrega'}</p>
+                                </div>
+                                {selectedOrder.troco && (
+                                    <div className="col-span-2 p-4 bg-rose-50 rounded-2xl border border-rose-100 border-dashed text-rose-600">
+                                        <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-60">Troco Necessário</p>
+                                        <p className="text-xl font-black">R$ {selectedOrder.troco.toFixed(2)}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Modal Footer / Action */}
+                        <div className="p-8 bg-slate-50 border-t border-rose-50 flex gap-4">
+                            <button
+                                onClick={() => window.print()}
+                                className="flex-1 py-5 bg-white border-2 border-slate-200 text-slate-600 rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-slate-100 transition-all"
+                            >
+                                <Printer size={16} /> Imprimir Recibo
+                            </button>
+                            <button
+                                onClick={() => setSelectedOrder(null)}
+                                className="flex-1 py-5 bg-slate-900 text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-rose-600 transition-all shadow-xl shadow-slate-200"
+                            >
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
