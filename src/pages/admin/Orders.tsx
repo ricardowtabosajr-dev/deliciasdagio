@@ -4,7 +4,7 @@ import { STATUS_CONFIG } from '../../constants';
 import { OrderStatus } from '../../types';
 
 import {
-    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight, Truck
+    Clock, Package, MapPin, Receipt, MessageCircle, RefreshCcw, ShoppingBag, ChevronRight, Truck, UtensilsCrossed
 } from 'lucide-react';
 
 export const Orders: React.FC = () => {
@@ -14,13 +14,33 @@ export const Orders: React.FC = () => {
         await updateOrderStatus(orderId, newStatus);
     };
 
-    const notifyOrderDelivery = (order: any) => {
-        const token = order.confirmationToken || order.id;
-        const confirmUrl = `${window.location.protocol}//${window.location.host}/confirm?token=${token}`;
-        const msg = `Olá ${order.customerName}! Seu pedido #${order.id.slice(0, 5)} da ${storeConfig.storeName} saiu para entrega! 🛵💨\n\n*Por favor, clique no link abaixo para confirmar o recebimento quando o entregador chegar:*\n${confirmUrl}`;
+    const sendWhatsApp = (phone: string, message: string) => {
+        const cleanPhone = phone.replace(/\D/g, '');
+        window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`, '_blank');
+    };
 
-        const cleanPhone = order.customerPhone.replace(/\D/g, '');
-        window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`, '_blank');
+    const notifyOrderUpdate = (order: any, type: 'recebido' | 'preparo' | 'entrega') => {
+        let msg = '';
+        const greeting = `Olá ${order.customerName}! `;
+        const orderIdShort = order.id.slice(0, 5);
+
+        if (type === 'recebido') {
+            msg = `${greeting}Confirmamos o recebimento do seu pedido #${orderIdShort} da ${storeConfig.storeName}! Já vamos começar a cuidar dele com todo carinho. 🌹✨`;
+        } else if (type === 'preparo') {
+            msg = `${greeting}Boas notícias! Seu pedido #${orderIdShort} já entrou em preparo na nossa cozinha! 🍳🔥 Jajá sai para você.`;
+        } else if (type === 'entrega') {
+            const token = order.confirmationToken || order.id;
+            const confirmUrl = `${window.location.protocol}//${window.location.host}/confirm?token=${token}`;
+            msg = `${greeting}Seu pedido #${orderIdShort} da ${storeConfig.storeName} saiu para entrega! 🛵💨\n\n*Por- [x] Melhoria Visual Gourmet
+    - [x] Implementar fallback automático inteligente (análise de nome do produto)
+- [x] Notificações em Tempo Real (WhatsApp)
+    - [x] Botão "Notificar Recebimento" para status Recebido
+    - [x] Botão "Notificar Preparo" para status Em preparo
+    - [x] Botão "Enviar Link de Entrega" (Aprimorado)
+regador chegar:*\n${confirmUrl}`;
+        }
+
+        sendWhatsApp(order.customerPhone, msg);
     };
 
     return (
@@ -136,9 +156,25 @@ export const Orders: React.FC = () => {
                                 </div>
 
                                 <div className="space-y-3">
+                                    {order.status === 'Recebido' && (
+                                        <button
+                                            onClick={() => notifyOrderUpdate(order, 'recebido')}
+                                            className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all"
+                                        >
+                                            <Package size={16} /> Notificar Recebimento
+                                        </button>
+                                    )}
+                                    {order.status === 'Em preparo' && (
+                                        <button
+                                            onClick={() => notifyOrderUpdate(order, 'preparo')}
+                                            className="w-full py-4 bg-amber-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-amber-600 shadow-lg shadow-amber-100 transition-all"
+                                        >
+                                            <UtensilsCrossed size={16} /> Notificar Preparo
+                                        </button>
+                                    )}
                                     {order.status === 'Saiu para entrega' && (
                                         <button
-                                            onClick={() => notifyOrderDelivery(order)}
+                                            onClick={() => notifyOrderUpdate(order, 'entrega')}
                                             className="w-full py-4 bg-rose-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-rose-700 shadow-lg shadow-rose-200 transition-all animate-bounce-slow"
                                         >
                                             <Truck size={16} /> Enviar Link de Entrega
