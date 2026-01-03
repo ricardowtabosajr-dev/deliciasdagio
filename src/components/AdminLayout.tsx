@@ -13,6 +13,17 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
     const navigate = useNavigate();
     const location = useLocation();
 
+    const handleLogout = async () => {
+        try {
+            await signOut();
+            navigate('/', { replace: true });
+        } catch (error) {
+            console.error("Erro ao sair:", error);
+            // Fallback navigation
+            navigate('/', { replace: true });
+        }
+    };
+
     return (
         <div className="flex min-h-screen bg-[#fafafa] font-sans selection:bg-rose-100">
             {/* Sidebar Goumert */}
@@ -58,8 +69,8 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
                             onClick={() => updateStoreStatus(!storeConfig.isStoreOpen)}
                             disabled={dbSyncing}
                             className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all relative z-10 ${storeConfig.isStoreOpen
-                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                                    : 'bg-slate-200 text-slate-600'
+                                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                                : 'bg-slate-200 text-slate-600'
                                 }`}
                         >
                             {dbSyncing ? <RefreshCcw className="animate-spin" size={14} /> : (
@@ -72,7 +83,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
                     </div>
 
                     <button
-                        onClick={signOut}
+                        onClick={handleLogout}
                         className="w-full py-5 text-slate-400 hover:text-rose-600 font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-rose-50 rounded-2xl transition-all"
                     >
                         <LogOut size={16} /> Sair com Segurança
