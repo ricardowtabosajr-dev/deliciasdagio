@@ -26,13 +26,19 @@ export const CreateProduct: React.FC = () => {
     }, [id, products]);
 
     const handleAiAssistant = async () => {
-        if (!formData.name) return;
+        if (!formData.name) {
+            alert("⚠️ Por favor, dê um nome ao produto primeiro para que a IA possa criar uma descrição incrível!");
+            return;
+        }
+
         setAiGenerating(true);
         try {
             const apiKey = process.env.API_KEY || '';
-            const ai = new GoogleGenAI({ apiKey });
+            if (!apiKey) {
+                throw new Error("API Key não configurada corretamente.");
+            }
 
-            // Standardizing on gemini-1.5-flash for maximum compatibility
+            const ai = new GoogleGenAI({ apiKey });
             const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
 
             const prompt = `Você é um redator gourmet para a lanchonete 'Delícias da Gio'. 
@@ -48,7 +54,7 @@ export const CreateProduct: React.FC = () => {
             }
         } catch (e: any) {
             console.error("Link AI Error:", e);
-            // Silent fail or toast in a real app, here we will log to console
+            alert(`❌ Erro no Assistente de IA: ${e.message || "Tente novamente em instantes."}`);
         } finally {
             setAiGenerating(false);
         }
@@ -103,7 +109,7 @@ export const CreateProduct: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={handleAiAssistant}
-                                    disabled={aiGenerating || !formData.name}
+                                    disabled={aiGenerating}
                                     className="flex items-center gap-2 text-rose-600 hover:text-rose-700 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:grayscale transition-all"
                                 >
                                     {aiGenerating ? <RefreshCcw size={12} className="animate-spin" /> : <Sparkles size={12} />}
